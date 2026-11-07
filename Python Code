@@ -1,0 +1,70 @@
+import cv2
+import sys
+import numpy as np
+from PIL import Image, ImageDraw, ImageFont
+font = ImageFont.truetype('consola.ttf', 10)
+st = "@#W$?!abc;:+=-." #9-wid 15-high
+def main():
+
+
+    VideoHere = cv2.VideoCapture('test2.mp4')#put the video and is extension in here between ''
+    if not VideoHere.isOpened():
+        sys.exit("potato is not cooked")
+    
+    video_to_string(VideoHere)
+
+
+    VideoHere.release()
+    cv2.destroyAllWindows()
+
+def video_to_string(vid, sizefunc=[4,4], windowsize=(1000, 1000)): #the sizefunc is the size of the image in the window length-width
+    while True:
+        check, frame = vid.read()
+
+        sh = frame.shape
+        sh2 = (int(sh[1]*9/(sizefunc[0])), int(sh[0]*15/(sizefunc[1])))
+        pixels = (100, 100)
+
+        if not check:
+            break
+
+        
+        frame = cv2.resize(frame, pixels)
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        #frame = cv2.equalizeHist(frame)
+        
+        
+        y = 0
+        x = 0
+        inner = ""
+        outer = ""
+        for i in frame:
+            y = 0
+            for o in i:
+
+                numb = o/26
+                inner += st[int(numb)]
+
+                y+=1
+            outer += inner +"\n"
+            inner = ""
+            x+=1
+        
+        image = Image.new("RGB", sh2, (255, 255, 255))
+        draw = ImageDraw.Draw(image)
+        draw.multiline_text((0, 0), outer, fill=(0,0,0), font=font)
+
+
+        newframe = np.array(image)
+
+        newframe = cv2.cvtColor(newframe, cv2.COLOR_RGB2BGR)
+
+        newframe = cv2.resize(newframe, windowsize)
+
+        cv2.imshow("IhatePy", newframe)
+
+        if cv2.waitKey(25) & 0xFF == ord('q'):
+            break
+
+if __name__ == "__main__":
+    main()
